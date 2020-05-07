@@ -1,26 +1,63 @@
-import React from 'react';
-import logo from './logo.svg';
+import React,{useEffect,useState} from 'react';
+import Recipe from './Recipe';
+
 import './App.css';
 
-function App() {
-  return (
+const App = () =>{
+  const APP_ID  = 'c71cab82';
+  const APP_KEY = '50f22cfaab75923a23b76f6e18ced206';
+  
+  const [recipes, setRecipes]= useState([]);
+  const [search,setSearch] = useState('');
+  const [query,setQuery] = useState('strawberry');
+  //const[counter,setCounter] = useState(0);
+  
+  useEffect(() =>{
+    getRecipe();
+  },[query]);  //empty [] to run useeffect once 
+
+  const getRecipe= async()=>{
+    const response = await fetch(`https://api.edamam.com/search?q=${query}&app_id=${APP_ID}&app_key=${APP_KEY}`);
+    const data = await response.json();
+    setRecipes(data.hits);
+    //console.log(data.hits);
+    
+  }
+  
+  const updateSearch = e =>{
+    setSearch(e.target.value);
+    //console.log(search);
+  }
+
+  const getSearch = e =>{
+    e.preventDefault();
+    setQuery(search);
+    setSearch('');
+  }
+
+  return(
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="heading"><h1 >Recipe Search Engine </h1></div>
+      <form onSubmit={getSearch} className="search-form">
+      
+        <input className="search-bar" type ="text"  value={search} onChange={updateSearch}/> 
+        <button className="serach-button" type = "submit"> 
+        Search 
+        </button>
+      </form>
+      <div className="recipes">
+      {recipes.map(recipe =>(
+        <Recipe 
+        key={recipe.recipe.label}
+        title ={recipe.recipe.label} 
+        calories= {recipe.recipe.calories} 
+        image={recipe.recipe.image}
+        ingredients = {recipe.recipe.ingredients}
+        />
+      ))}
+      </div>
     </div>
-  );
+  )
 }
 
 export default App;
